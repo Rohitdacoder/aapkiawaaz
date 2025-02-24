@@ -9,9 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Profile Page',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: ProfilePage(),
     );
   }
@@ -28,6 +26,36 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _aadharController = TextEditingController();
   bool _isAnonymous = false;
+  bool _isEditing = false;
+  String _name = 'John Doe';
+  String _email = 'john.doe@example.com';
+  String _phone = '+1234567890';
+  String _aadhar = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = _name;
+    _emailController.text = _email;
+    _phoneController.text = _phone;
+    _aadharController.text = _aadhar;
+  }
+
+  void _toggleEditing() {
+    setState(() {
+      _isEditing = !_isEditing;
+    });
+  }
+
+  void _saveChanges() {
+    setState(() {
+      _name = _nameController.text;
+      _email = _emailController.text;
+      _phone = _phoneController.text;
+      _aadhar = _aadharController.text;
+      _isEditing = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +63,9 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text('Profile Settings'),
         actions: [
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              'Edit',
-              style: TextStyle(color: Colors.white),
-            ),
+          IconButton(
+            icon: Icon(_isEditing ? Icons.check : Icons.edit),
+            onPressed: _isEditing ? _saveChanges : _toggleEditing,
           ),
         ],
       ),
@@ -53,25 +78,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 CircleAvatar(
                   radius: 40,
                   backgroundImage: NetworkImage(
-                      'https://placehold.co/100x100?text=Profile+Picture'),
+                    'https://placehold.co/100x100?text=Profile+Picture',
+                  ),
                 ),
                 SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'John Doe',
+                      _name,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
-                      'john.doe@example.com',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text(_email, style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ],
@@ -83,6 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Name',
                 border: OutlineInputBorder(),
               ),
+              enabled: _isEditing,
             ),
             SizedBox(height: 20),
             TextField(
@@ -91,6 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
+              enabled: _isEditing,
             ),
             SizedBox(height: 20),
             TextField(
@@ -99,6 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Phone Number',
                 border: OutlineInputBorder(),
               ),
+              enabled: _isEditing,
             ),
             SizedBox(height: 20),
             TextField(
@@ -107,26 +131,32 @@ class _ProfilePageState extends State<ProfilePage> {
                 labelText: 'Verify with Aadhar',
                 border: OutlineInputBorder(),
               ),
+              enabled: _isEditing,
             ),
             SizedBox(height: 20),
             Row(
+              mainAxisAlignment : MainAxisAlignment.spaceBetween,
               children: [
-                Checkbox(
+                Text('Set Profile Anonymous'),
+                Switch(
                   value: _isAnonymous,
-                  onChanged: (bool? value) {
+                  onChanged:
+                  _isEditing
+                      ? (bool? value) {
                     setState(() {
                       _isAnonymous = value!;
                     });
-                  },
+                  }
+                      : null,
                 ),
-                Text('Set Profile Anonymous'),
               ],
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Save Changes'),
-            ),
+            if (_isEditing)
+              ElevatedButton(
+                onPressed: _saveChanges,
+                child: Text('Save Changes'),
+              ),
           ],
         ),
       ),
